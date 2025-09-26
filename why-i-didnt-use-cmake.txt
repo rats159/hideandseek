@@ -1,0 +1,13 @@
+Originally for this project, I wanted to use CMake, since as far as I understand, that's the recommended way to build C++ projects. However, it didn't take long for me to realize that CMake was a mistake. In order to link raylib with my project, as I understood it, I needed to install:
+1. CMake, which is reasonable given I'm using it
+2. Raylib, also perfectly reasonable
+3. vcpkg. I guess I need a special package manager just to install raylib, sure
+4. Visual Studio. why?
+
+When just invoking the compiler directly, I just download raylib, package it with my project, and link it. CMake isn't providing any fancy cross platform-ness here either, it's just that the raylib package can change its flags based on what OS it's on from what I can tell. All the cross platform--ness of CMake is to generate *MORE* build scripts, which then invoke the compiler. This is useless. 
+
+The programmer is already familiar with what compiler they're using, so simply document what your project needs, and write the command yourself. I can guarantee it's less effort on your end to write one compiler command than 50 CMake commands to dynamically generate your single little command 5 times for every OS.
+
+It's not like all code is cross platform anyways, the developer still has to write correct cross-platform code and handle every OS they plan to support, so why do people see an issue with expecting that developer to be able to write two or three extra compiler commands.
+
+You might have to reinstall raylib, but that's fine, I think you should be aware of what dependencies a project needs. It's all statically linked to there's no need for the end user to worry.
