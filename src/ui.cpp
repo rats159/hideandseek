@@ -16,6 +16,7 @@ std::vector<Font> UI::fonts;
 
 bool UI::button(const char *label)
 {
+    bool pressed = false;
     CLAY_AUTO_ID({
         .layout = {
             .padding = {16,16,8,8},
@@ -26,10 +27,12 @@ bool UI::button(const char *label)
     {
         centeredText(label, &DefaultStyles::buttonText);
         if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            return true;
+            // You can't return from the CLAY macro because the element will never be closed
+            //   annoying bug :P
+            pressed = true;
         }
     }
-    return false;
+    return pressed;
 }
 
 void UI::centeredText(const char *label, Clay_TextElementConfig *config)
