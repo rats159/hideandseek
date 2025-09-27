@@ -6,7 +6,7 @@ Game::Game() : window(1280, 720)
 {
     currentScene = new MainMenuScene();
 
-    UI::loadFont("./assets/NotoSans-Regular.ttf", 32);
+    UI::loadFont("./assets/NotoSans-Regular.ttf", 64);
 }
 
 void Game::quit(void)
@@ -18,6 +18,7 @@ void Game::run(void)
 {
     while (!WindowShouldClose() && running)
     {
+        this->currentScene->tick(this);
         clay.update();
         clay.beginLayout();
         BeginDrawing();

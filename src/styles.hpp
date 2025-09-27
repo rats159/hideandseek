@@ -7,9 +7,5 @@
 //   so this seemed like a better idea
 namespace DefaultStyles
 {
-    static Clay_TextElementConfig buttonText{
-        .textColor = {255, 255, 255, 255},
-        .fontId = 0,
-        .fontSize = 32,
-    };
+    extern Clay_TextElementConfig buttonText;
 };

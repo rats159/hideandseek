@@ -14,19 +14,38 @@
 
 std::vector<Font> UI::fonts;
 
+Clay_Color buttonColor()
+{
+    if (Clay_Hovered())
+    {
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            return {128, 128, 128, 255};
+        }
+        return {192, 192, 192, 255};
+    }
+
+    return {255, 255, 255, 255};
+}
+
 bool UI::button(const char *label)
 {
     bool pressed = false;
     CLAY_AUTO_ID({
         .layout = {
-            .padding = {16,16,8,8},
+            .padding = {16, 16, 8, 8},
         },
-        .backgroundColor = Clay_Hovered()? Clay_Color{128,0,0,255} :Clay_Color{255, 0, 0, 255},
-        .cornerRadius = CLAY_CORNER_RADIUS(8)
+        .backgroundColor = buttonColor(),
+        .cornerRadius = CLAY_CORNER_RADIUS(8),
+        .border = {
+            .color = {0, 0, 0, 255},
+            .width = CLAY_BORDER_OUTSIDE(2),
+        },
     })
     {
         centeredText(label, &DefaultStyles::buttonText);
-        if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        if (Clay_Hovered() && IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
+        {
             // You can't return from the CLAY macro because the element will never be closed
             //   annoying bug :P
             pressed = true;
@@ -35,19 +54,21 @@ bool UI::button(const char *label)
     return pressed;
 }
 
+void UI::vGap(float size)
+{
+    CLAY_AUTO_ID({.layout = {
+                      .sizing = {
+                          .height = CLAY_SIZING_FIXED(size)}}});
+}
+
 void UI::centeredText(const char *label, Clay_TextElementConfig *config)
 {
     CLAY_AUTO_ID({
         .layout = {
-            .sizing = {
-                .width = CLAY_SIZING_GROW(0),
-                .height = CLAY_SIZING_GROW(0),
-            },
             .childAlignment = {
                 .x = CLAY_ALIGN_X_CENTER,
                 .y = CLAY_ALIGN_Y_CENTER,
-            }
-        },
+            }},
     })
     {
         Clay_String str = Clay_String{
@@ -176,4 +197,43 @@ void UI::render(Clay_RenderCommandArray renderCommands)
         }
         }
     }
+}
+
+Clay_Dimensions UI::measureText(Clay_StringSlice text, Clay_TextElementConfig *config, void *userData)
+{
+    float lineWidth = 0;
+
+    float textHeight = config->fontSize;
+
+    Font font = ((Font *)userData)[config->fontId];
+
+    float scaleFactor = (float)config->fontSize / (float)font.baseSize;
+
+    for (int i = 0; i < text.length; ++i)
+    {
+        int index = text.chars[i] - 32;
+        if (font.glyphs[index].advanceX != 0)
+        {
+            lineWidth += font.glyphs[index].advanceX;
+        }
+        else
+        {
+            lineWidth += font.recs[index].width + font.glyphs[index].offsetX;
+        }
+    }
+
+    return {lineWidth * scaleFactor, textHeight};
+}
+
+void UI::loadFont(const char *filepath, int size)
+{
+    Font font = LoadFontEx(filepath, size, nullptr, 0);
+    SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR);
+    fonts.push_back(font);
+
+    // Reset the function when we load a font
+    //   1. This keeps the pointer valid in case of a resize
+    //   2. This stops us from trying to measure text when we have no fonts loaded
+    //      Clay will give us an error log if we try to measure without a function
+    Clay_SetMeasureTextFunction(UI::measureText, fonts.data());
 }

@@ -4,13 +4,8 @@
 
 class Window {
     public:
-        Window(int width, int height) {
-            SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
-            InitWindow(width, height, "Hide and Seek!");
-        }
+        Window(int width, int height);
 
         // Does the publicity of a destructor matter?
-        ~Window() {
-            CloseWindow();
-        }
+        ~Window();
 };

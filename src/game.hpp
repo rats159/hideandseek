@@ -26,13 +26,7 @@ private:
     Scene *nextScene = nullptr;
 
 public:
-    // "Constructor initializer lists" are weird, but I guess that's just a consequence of weird syntax
-    Game();// : window(1280, 720)
-    // {
-        // clay = ClayInstance::get();
-        // uint32_t minMemory = Clay_MinMemorySize();   
-        // Clay_Arena arena = Clay_CreateArenaWithCapacityAndMemory(minMemory, malloc((size_t)minMemory));
-    // }
+    Game();
 
     ~Game()
     {
