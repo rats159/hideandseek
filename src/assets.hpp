@@ -18,7 +18,7 @@ namespace Assets
 
     protected:
         const std::string assetPath = "assets/";
-        std::unordered_map<const char *, T> assets;
+        std::unordered_map<std::string, T> assets;
     };
 
     class TextureLoader : public AssetLoader<Texture>

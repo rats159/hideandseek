@@ -7,11 +7,12 @@ namespace Assets
 
 Texture &Assets::TextureLoader::operator[](const char *fileName)
 {
-    const char *filepath = (assetPath + std::string(fileName) + imgSuffix).c_str();
-    if (!assets.contains(filepath))
-    {
-        Texture tex = LoadTexture(filepath);
-        assets[filepath] = tex;
+    std::string fullPath = assetPath + std::string(fileName) + imgSuffix;
+
+    if (!assets.contains(fullPath)) {
+        Texture tex = LoadTexture(fullPath.c_str());
+        assets[fullPath] = tex;
     }
-    return assets[filepath];
+
+    return assets[fullPath];
 }
