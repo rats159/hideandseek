@@ -28,7 +28,7 @@ Clay_Color buttonColor()
     return {255, 255, 255, 255};
 }
 
-bool UI::button(const char *label)
+bool UI::button(const char *label, Clay_TextElementConfig textConfig)
 {
     bool pressed = false;
     CLAY_AUTO_ID({
@@ -43,7 +43,7 @@ bool UI::button(const char *label)
         },
     })
     {
-        centeredText(label, &DefaultStyles::buttonText);
+        centeredText(label, CLAY_TEXT_CONFIG(textConfig));
         if (Clay_Hovered() && IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
         {
             // You can't return from the CLAY macro because the element will never be closed
@@ -59,6 +59,28 @@ void UI::vGap(float size)
     CLAY_AUTO_ID({.layout = {
                       .sizing = {
                           .height = CLAY_SIZING_FIXED(size)}}});
+}
+
+void UI::vGrow()
+{
+    CLAY_AUTO_ID({
+        .layout = {
+            .sizing = {
+                .height =  CLAY_SIZING_GROW()
+            }
+        }
+    });
+}
+
+void UI::hGrow()
+{
+    CLAY_AUTO_ID({
+        .layout = {
+            .sizing = {
+                .width =  CLAY_SIZING_GROW()
+            }
+        }
+    });
 }
 
 void UI::centeredText(const char *label, Clay_TextElementConfig *config)
