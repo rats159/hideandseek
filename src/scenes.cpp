@@ -2,6 +2,7 @@
 #include "game.hpp"
 #include "bitset.hpp"
 #include "player.hpp"
+#include "editor_scenes.hpp"
 
 void MainMenuScene::draw(Game *game)
 {
@@ -27,6 +28,12 @@ void MainMenuScene::draw(Game *game)
         {
             game->changeScene<GameScene>();
         }
+#ifdef EDITOR
+        if (UI::button("Editor!"))
+        {
+            game->changeScene<BaseEditorScene>();
+        }
+#endif
         if (UI::button("Quit!"))
         {
             game->quit();
