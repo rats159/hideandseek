@@ -1,12 +1,12 @@
 #pragma once
-#ifdef EDITOR
+#ifdef DEVTOOLS
 #include "scenes.hpp"
 #include <raylib.h>
 #include <vector>
 #include "collider.hpp"
 #include <functional>
 
-class BaseEditorScene : public Scene {
+class DevToolsScene : public Scene {
     virtual void draw(Game *game) override;
 };
 

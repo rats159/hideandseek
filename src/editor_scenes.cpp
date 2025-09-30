@@ -1,13 +1,15 @@
-#ifdef EDITOR
+#ifdef DEVTOOLS
 #include "editor_scenes.hpp"
 #include "game.hpp"
 #include "filedialog.hpp"
 #include "collider.hpp"
 #include <algorithm>
 
+#include "serialization_test_scene.hpp"
+
 // Editor scene defined in its own file since it has a lot of extra stuff
 
-void BaseEditorScene::draw(Game* game)
+void DevToolsScene::draw(Game* game)
 {
     CLAY_AUTO_ID({
                  .layout = {
@@ -28,6 +30,10 @@ void BaseEditorScene::draw(Game* game)
         if (UI::button("Edit a sprite's collision!"))
         {
             game->changeScene<SpriteEditorScene>();
+        }
+        if (UI::button("Test serialization!"))
+        {
+            game->changeScene<SerializationTestScene>();
         }
         if (UI::button("Back"))
         {
@@ -213,7 +219,7 @@ void SpriteEditorScene::draw(Game* game)
                                .fontSize = 18
                            }))
             {
-                game->changeScene<BaseEditorScene>();
+                game->changeScene<DevToolsScene>();
             }
             CLAY_AUTO_ID({
                          .floating = {

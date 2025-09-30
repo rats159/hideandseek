@@ -28,10 +28,10 @@ void MainMenuScene::draw(Game *game)
         {
             game->changeScene<GameScene>();
         }
-#ifdef EDITOR
-        if (UI::button("Editor!"))
+#ifdef DEVTOOLS
+        if (UI::button("Dev Tools!"))
         {
-            game->changeScene<BaseEditorScene>();
+            game->changeScene<DevToolsScene>();
         }
 #endif
         if (UI::button("Quit!"))

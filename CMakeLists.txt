@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(HideAndSeek LANGUAGES C CXX)
 
-option(EDITOR "Enable editor" OFF)
+option(DEVTOOLS "Enable dev tools" OFF)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -54,6 +54,6 @@ if (WIN32)
     target_link_libraries(hideandseek PRIVATE gdi32 winmm)
 endif()
 
-if (EDITOR)
-    target_compile_definitions(hideandseek PRIVATE EDITOR)
+if (DEVTOOLS)
+    target_compile_definitions(hideandseek PRIVATE DEVTOOLS)
 endif()
