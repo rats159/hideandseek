@@ -99,12 +99,12 @@ when DEVTOOLS {
 
 		first: T
 		randomize(first, allocator)
-		first_bytes := cbor.marshal_into_bytes(first) or_else panic("First marshalling failed!")
+		first_bytes := cbor.marshal_into_bytes(first,allocator = allocator) or_else panic("First marshalling failed!")
 
 		second: T
-		cbor.unmarshal_from_bytes(first_bytes, &second)
+		cbor.unmarshal_from_bytes(first_bytes, &second, allocator = allocator)
 
-		second_bytes := cbor.marshal_into_bytes(second) or_else panic("Second marshalling failed!")
+		second_bytes := cbor.marshal_into_bytes(second,allocator = allocator) or_else panic("Second marshalling failed!")
 
 		if (len(first_bytes) != len(second_bytes)) do return first, false
 
@@ -146,12 +146,20 @@ when DEVTOOLS {
 		scene.alloc = virtual.arena_allocator(&scene.arena)
 
 		scene.draw = serialization_test_scene_draw
-		scene.destroy = generic_scene_destroy
+		scene.destroy = serialization_test_scene_destroy
 
 		run_tests(scene)
 
 
 		return scene
+	}
+
+	serialization_test_scene_destroy :: proc(scene: ^Scene) {
+		scene := (^SerializationTestScene)(scene)
+		generic_scene_destroy(scene)
+		delete(scene.tests)
+		free_all(scene.alloc)
+		virtual.arena_destroy(&scene.arena)
 	}
 
 	serialization_test_scene_draw :: proc(scene: ^Scene, game: ^Game) {

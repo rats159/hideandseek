@@ -3,7 +3,10 @@ package ui
 import clay "../../libs/clay-odin"
 import rl "vendor:raylib"
 
-fonts: [dynamic]rl.Font
+UI_Data :: struct {
+    fonts: [dynamic]rl.Font,
+    clay_memory: clay.Arena,
+}
 
 buttonColor :: proc() -> clay.Color
 {
@@ -85,17 +88,17 @@ centeredText :: proc(label: string, config: ^clay.TextElementConfig)
     };
 }
 
-loadFont :: proc(filepath: cstring, size: i32) -> u16
+loadFont :: proc(filepath: cstring, size: i32, ui_data: ^UI_Data) -> u16
 {
     font := rl.LoadFontEx(filepath, size, nil, 0);
     rl.SetTextureFilter(font.texture, .BILINEAR);
-    append(&fonts, font);
+    append(&ui_data.fonts, font);
 
     // Reset the function when we load a font
     //   1. This keeps the pointer valid in case of a resize
     //   2. This stops us from trying to measure text when we have no fonts loaded
     //      Clay will give us an error log if we try to measure without a function
-    clay.SetMeasureTextFunction(measure_text, raw_data(fonts));
+    clay.SetMeasureTextFunction(measure_text, raw_data(ui_data.fonts));
 
-    return u16(len(fonts))
+    return u16(len(ui_data.fonts))
 }

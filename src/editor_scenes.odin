@@ -74,6 +74,7 @@ when DEVTOOLS {
 
 	sprite_editor_scene_destroy :: proc(scene: ^Scene) {
 		generic_scene_destroy(scene)
+		delete((^SpriteEditorScene)(scene).colliders)
 		rl.UnloadTexture((^SpriteEditorScene)(scene).baseTex)
 	}
 
@@ -212,6 +213,7 @@ when DEVTOOLS {
 					if file, ok := optionalFile.?; ok {
 						rl.UnloadTexture(scene.baseTex)
 						scene.baseTex = rl.LoadTexture(file)
+						delete(file)
 					}
 				}
 				if (ui.button("Open", {textColor = {0, 0, 0, 255}, fontSize = 18})) {
