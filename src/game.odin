@@ -10,10 +10,6 @@ Game :: struct {
 	next_scene:    ^Scene,
 }
 
-// #include "game.hpp"
-// #include "scenes.hpp"
-// #include "clay.hpp"
-
 init_clay :: proc() {
 	min_mem := uint(clay.MinMemorySize())
 	arena := clay.CreateArenaWithCapacityAndMemory(min_mem, make([^]u8, min_mem))
@@ -32,13 +28,6 @@ init_game :: proc(game: ^Game) {
 change_scene :: proc(game: ^Game, scene: ^Scene) {
 	game.next_scene = scene
 }
-
-// Game::Game() : window(1280, 720)
-// {
-//     currentScene = new MainMenuScene();
-
-//     
-// }
 
 quit :: proc(game: ^Game) {
 	game.running = false

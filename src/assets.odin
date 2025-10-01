@@ -4,12 +4,6 @@ import rl "vendor:raylib"
 
 ASSET_PATH :: "./assets/"
 IMAGE_SUFFIX :: ".png"
-// #include "assets.hpp"
-
-// namespace Assets
-// {
-//     TextureLoader textures;
-// }
 
 @(private)
 textures: map[string]rl.Texture

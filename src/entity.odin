@@ -26,12 +26,8 @@ make_player :: proc() -> Entity {
     fmt.println("MAKIGN PLAYER")
     plr := make_entity()
     plr.components += PLAYER_COMPONENTS;
-    plr.sprite = get_texture("player")//Assets::textures["player"];
+    plr.sprite = get_texture("player")
     plr.speed = 200;
     plr.position = {0, 0};
     return plr;
 }
-// Entity Entity::player()
-// {
-
-// }

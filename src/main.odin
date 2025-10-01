@@ -1,8 +1,4 @@
 package main
-// #include <iostream>
-// #include <raylib.h>
-
-// #include "game.hpp"
 
 DEVTOOLS :: #config(DEVTOOLS, true)
 

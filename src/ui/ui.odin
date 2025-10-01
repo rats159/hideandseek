@@ -2,19 +2,7 @@ package ui
 
 import clay "../../libs/clay-odin"
 import rl "vendor:raylib"
-// Clay is a single-header library, I'm throwing the implementation into this source file for simplicity
-// #define CLAY_IMPLEMENTATION
-// #include <clay.h>
-// #include <iostream>
-// #include <cmath>
-// #include "hpp"
-// #include <cstring>
-// #include "styles.hpp"
 
-// #define CLAY_RECTANGLE_TO_RAYLIB_RECTANGLE(rectangle) \
-    // Rectangle { .x = rectangle.x, .y = rectangle.y, .width = rectangle.width, .height = rectangle.height }
-// #define CLAY_COLOR_TO_RAYLIB_COLOR(color) \
-    // Color { .r = (unsigned char)round(color.r), .g = (unsigned char)round(color.g), .b = (unsigned char)round(color.b), .a = (unsigned char)round(color.a) }
 fonts: [dynamic]rl.Font
 
 buttonColor :: proc() -> clay.Color
