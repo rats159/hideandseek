@@ -34,22 +34,24 @@ when DEVTOOLS {
 		{
 			layout = {
 				sizing = {width = clay.SizingGrow(), height = clay.SizingGrow()},
-				childGap = 10,
 				childAlignment = {.Center, .Center},
 				layoutDirection = .TopToBottom,
 			},
-			backgroundColor = {0,0,0, 255},
+			backgroundColor = {0, 0, 0, 255},
 		},
 		) {
-			if (ui.button("Edit a sprite's collision!")) {
-				change_scene(game, sprite_editor_scene_make())
+			if clay.UI()({layout = {layoutDirection = .TopToBottom, childGap = 10}}) {
+				if (ui.button("Edit a sprite's collision!")) {
+					change_scene(game, sprite_editor_scene_make())
+				}
+				if (ui.button("Test serialization!")) {
+					change_scene(game, serialization_test_scene_make())
+				}
+				if (ui.button("Back")) {
+					change_scene(game, main_menu_scene_make())
+				}
 			}
-			if (ui.button("Test serialization!")) {
-				change_scene(game, serialization_test_scene_make())
-			}
-			if (ui.button("Back")) {
-				change_scene(game, main_menu_scene_make())
-			}
+
 		}
 	}
 
@@ -153,8 +155,11 @@ when DEVTOOLS {
 			rl.DrawRectangleRec(LEFT_REC, hoverColor)
 			if (rl.IsMouseButtonPressed(.LEFT)) {
 				scene.dragUserdata = col
-				scene.dragCallback =
-				proc(scene: ^SpriteEditorScene, pos: rl.Vector2, data: rawptr) {
+				scene.dragCallback = proc(
+					scene: ^SpriteEditorScene,
+					pos: rl.Vector2,
+					data: rawptr,
+				) {
 					col := (^Collider)(data)
 					col.x1 = (int)(rl.GetScreenToWorld2D(pos, scene.camera).x)
 				}
@@ -167,8 +172,11 @@ when DEVTOOLS {
 			rl.DrawRectangleRec(RIGHT_REC, hoverColor)
 			if (rl.IsMouseButtonPressed(.LEFT)) {
 				scene.dragUserdata = col
-				scene.dragCallback =
-				proc(scene: ^SpriteEditorScene, pos: rl.Vector2, data: rawptr) {
+				scene.dragCallback = proc(
+					scene: ^SpriteEditorScene,
+					pos: rl.Vector2,
+					data: rawptr,
+				) {
 					col := (^Collider)(data)
 					col.x2 = (int)(rl.GetScreenToWorld2D(pos, scene.camera).x)
 				}
@@ -180,8 +188,11 @@ when DEVTOOLS {
 			rl.DrawRectangleRec(TOP_REC, hoverColor)
 			if (rl.IsMouseButtonPressed(.LEFT)) {
 				scene.dragUserdata = col
-				scene.dragCallback =
-				proc(scene: ^SpriteEditorScene, pos: rl.Vector2, data: rawptr) {
+				scene.dragCallback = proc(
+					scene: ^SpriteEditorScene,
+					pos: rl.Vector2,
+					data: rawptr,
+				) {
 					col := (^Collider)(data)
 					col.y1 = (int)(rl.GetScreenToWorld2D(pos, scene.camera).y)
 				}
@@ -193,8 +204,11 @@ when DEVTOOLS {
 			rl.DrawRectangleRec(BOTTOM_REC, hoverColor)
 			if (rl.IsMouseButtonPressed(.LEFT)) {
 				scene.dragUserdata = col
-				scene.dragCallback =
-				proc(scene: ^SpriteEditorScene, pos: rl.Vector2, data: rawptr) {
+				scene.dragCallback = proc(
+					scene: ^SpriteEditorScene,
+					pos: rl.Vector2,
+					data: rawptr,
+				) {
 					col := (^Collider)(data)
 					col.y2 = (int)(rl.GetScreenToWorld2D(pos, scene.camera).y)
 				}

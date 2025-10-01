@@ -22,7 +22,11 @@ buttonColor :: proc() -> clay.Color {
 button :: proc(label: string, textConfig: clay.TextElementConfig = default_button_text) -> bool {
 	if clay.UI()(
 	{
-		layout = {padding = {16, 16, 8, 8}},
+		layout = {
+			padding = {16, 16, 8, 8},
+			sizing = {width = clay.SizingGrow()},
+			childAlignment = {.Center, .Center},
+		},
 		backgroundColor = buttonColor(),
 		cornerRadius = clay.CornerRadiusAll(8),
 		border = {color = {0, 0, 0, 255}, width = clay.BorderOutside(2)},

@@ -50,7 +50,6 @@ main_menu_draw :: proc(scene: ^Scene, game: ^Game) {
 	{
 		layout = {
 			sizing = {width = clay.SizingGrow(), height = clay.SizingGrow()},
-			childGap = 10,
 			childAlignment = {.Center, .Center},
 			layoutDirection = .TopToBottom,
 		},
@@ -62,16 +61,19 @@ main_menu_draw :: proc(scene: ^Scene, game: ^Game) {
 			clay.TextConfig({textColor = {0, 0, 0, 255}, fontSize = 48}),
 		)
 		ui.vGap(20)
-		if (ui.button("Play!")) {
-			change_scene(game, game_scene_make())
-		}
-		when DEVTOOLS {
-			if (ui.button("Dev Tools!")) {
-				change_scene(game, dev_tools_scene_make())
+		if clay.UI()({layout = {layoutDirection = .TopToBottom, childGap = 10}}) {
+			if (ui.button("Play!")) {
+				change_scene(game, game_scene_make())
 			}
-		}
-		if (ui.button("Quit!")) {
-			quit(game)
+			when DEVTOOLS {
+				if (ui.button("Dev Tools!")) {
+					change_scene(game, dev_tools_scene_make())
+				}
+			}
+			if (ui.button("Quit!")) {
+				quit(game)
+
+			}
 		}
 	}
 }
