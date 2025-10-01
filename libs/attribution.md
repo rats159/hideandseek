@@ -1,0 +1,2 @@
+- [Clay](https://github.com/nicbarker/clay) by [Nic Barker](https://github.com/nicbarker) - Zlib license
+- [odin-tinyfiledialogs](https://github.com/duffn/odin-tinyfiledialogs) by [duffn](https://github.com/duffn) - Zlib license
