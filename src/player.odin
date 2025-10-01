@@ -2,7 +2,7 @@ package main
 
 import rl "vendor:raylib"
 
-PLAYER_COMPONENTS :: bit_set[Component]{.PLAYER_CONTROLLED, .SPRITE};
+PLAYER_COMPONENTS :: bit_set[Component]{.PLAYER_CONTROLLED, .SPRITE}
 
 tick_player :: proc(plr: ^Entity) {
 	//TODO: keyboard abstraction layer?

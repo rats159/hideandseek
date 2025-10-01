@@ -1,6 +1,5 @@
 package main
 import clay "../libs/clay-odin"
-import "core:math"
 import "base:builtin"
 import "base:runtime"
 import "core:encoding/cbor"
@@ -9,8 +8,6 @@ import "core:math/rand"
 import "core:mem"
 import "core:mem/virtual"
 import "core:reflect"
-import "core:strings"
-import "core:time"
 import "ui"
 import rl "vendor:raylib"
 
@@ -58,11 +55,12 @@ when DEVTOOLS {
 			randomize(any{data = val.data, id = value.base.id}, allocator)
 		case runtime.Type_Info_Slice:
 			length := int(rand.uint32() % (MAX_RAND_LEN - MIN_RAND_LEN) + MIN_RAND_LEN)
-			data, err := mem.alloc_bytes(
-				value.elem.size * length,
-				value.elem.align,
-				allocator = allocator,
-			)
+			data :=
+				mem.alloc_bytes(
+					value.elem.size * length,
+					value.elem.align,
+					allocator = allocator,
+				) or_else panic("Memory allocation for slice failed")
 
 			slc := (^runtime.Raw_Slice)(val.data)
 			slc^ = runtime.Raw_Slice{raw_data(data), length}
@@ -80,10 +78,14 @@ when DEVTOOLS {
 			mem.copy(val.data, &big_value, reflect.size_of_typeid(val.id))
 		case runtime.Type_Info_Float:
 			switch val.id {
-				case f64: (^f64)(val.data)^ = rand.float64() * 100 
-				case f32: (^f32)(val.data)^ = rand.float32() * 100
-				case f16: (^f16)(val.data)^ = f16(rand.float32() * 100)
-				case: fmt.panicf("Unhandled float type",val.id)
+			case f64:
+				(^f64)(val.data)^ = rand.float64() * 100
+			case f32:
+				(^f32)(val.data)^ = rand.float32() * 100
+			case f16:
+				(^f16)(val.data)^ = f16(rand.float32() * 100)
+			case:
+				fmt.panicf("Unhandled float type", val.id)
 			}
 
 		case:
@@ -99,12 +101,18 @@ when DEVTOOLS {
 
 		first: T
 		randomize(first, allocator)
-		first_bytes := cbor.marshal_into_bytes(first,allocator = allocator) or_else panic("First marshalling failed!")
+		first_bytes :=
+			cbor.marshal_into_bytes(first, allocator = allocator) or_else panic(
+				"First marshalling failed!",
+			)
 
 		second: T
 		cbor.unmarshal_from_bytes(first_bytes, &second, allocator = allocator)
 
-		second_bytes := cbor.marshal_into_bytes(second,allocator = allocator) or_else panic("Second marshalling failed!")
+		second_bytes :=
+			cbor.marshal_into_bytes(second, allocator = allocator) or_else panic(
+				"Second marshalling failed!",
+			)
 
 		if (len(first_bytes) != len(second_bytes)) do return first, false
 
@@ -164,7 +172,6 @@ when DEVTOOLS {
 
 	serialization_test_scene_draw :: proc(scene: ^Scene, game: ^Game) {
 		scene := (^SerializationTestScene)(scene)
-		run_tests(scene)
 		rl.ClearBackground(rl.BLACK)
 
 		if clay.UI()(
@@ -173,7 +180,7 @@ when DEVTOOLS {
 			clip = {vertical = true, childOffset = clay.GetScrollOffset()},
 		},
 		) {
-			for &test, i in scene.tests {
+			for &test in scene.tests {
 				if clay.UI()({layout = {layoutDirection = .TopToBottom}}) {
 					if clay.UI()({}) {
 						if clay.Hovered() && rl.IsMouseButtonPressed(.LEFT) {
@@ -233,8 +240,14 @@ when DEVTOOLS {
 
 
 		if clay.UI()({floating = {attachment = {.RightTop, .RightTop}, attachTo = .Root}}) {
-			if ui.button("Reset") {
-				run_tests(scene)
+			if clay.UI()({layout = {layoutDirection = .TopToBottom}}) {
+				if ui.button("Reset") {
+					run_tests(scene)
+				}
+				if ui.button("Back") {
+					change_scene(game, dev_tools_scene_make())
+				}
+
 			}
 		}
 	}

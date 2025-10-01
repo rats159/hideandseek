@@ -1,15 +1,14 @@
 package main
 
 ColliderType :: enum u8 {
-    CollisionBox,
-    TagBox,
-};
+	CollisionBox,
+	TagBox,
+}
 
-Collider :: struct
-{
-    type: ColliderType,
-    x1: int,
-    y1: int,
-    x2: int,
-    y2: int,
-};
+Collider :: struct {
+	type: ColliderType,
+	x1:   int,
+	y1:   int,
+	x2:   int,
+	y2:   int,
+}

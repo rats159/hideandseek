@@ -29,10 +29,10 @@ game_scene_make :: proc() -> ^Scene {
 	scene.draw = game_scene_draw
 	scene.tick = game_scene_tick
 	scene.destroy = generic_scene_destroy
-    
+
 	append(&scene.entities, make_player())
 
-    return scene
+	return scene
 }
 
 main_menu_scene_make :: proc() -> ^Scene {

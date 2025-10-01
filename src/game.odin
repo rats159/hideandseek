@@ -8,8 +8,7 @@ Game :: struct {
 	running:       bool,
 	current_scene: ^Scene,
 	next_scene:    ^Scene,
-
-	ui_data: ui.UI_Data
+	ui_data:       ui.UI_Data,
 }
 
 init_clay :: proc(game: ^Game) {
@@ -25,8 +24,8 @@ init_game :: proc(game: ^Game) {
 	init_clay(game)
 	game.running = true
 	game.current_scene = main_menu_scene_make()
-    ui.loadFont("./assets/NotoSans-Regular.ttf", 64,&game.ui_data);
-    ui.loadFont("./assets/JetBrainsMonoNL-Regular.ttf", 64,&game.ui_data);
+	ui.loadFont("./assets/NotoSans-Regular.ttf", 64, &game.ui_data)
+	ui.loadFont("./assets/JetBrainsMonoNL-Regular.ttf", 64, &game.ui_data)
 }
 
 change_scene :: proc(game: ^Game, scene: ^Scene) {
@@ -38,11 +37,8 @@ quit :: proc(game: ^Game) {
 }
 
 update_clay :: proc() {
-    clay.SetLayoutDimensions({(f32)(rl.GetScreenWidth()),
-                              (f32)(rl.GetScreenHeight())});
-    clay.SetPointerState(
-        rl.GetMousePosition(),
-        rl.IsMouseButtonDown(.LEFT));
+	clay.SetLayoutDimensions({(f32)(rl.GetScreenWidth()), (f32)(rl.GetScreenHeight())})
+	clay.SetPointerState(rl.GetMousePosition(), rl.IsMouseButtonDown(.LEFT))
 
 	clay.UpdateScrollContainers(false, rl.GetMouseWheelMoveV() * 4, rl.GetFrameTime())
 }
@@ -77,9 +73,9 @@ destroy_game :: proc(game: Game) {
 
 	free(game.ui_data.clay_memory.memory)
 	delete(game.ui_data.fonts)
-	
+
 	cleanup_assets()
-	
+
 	close_window()
 
 }
