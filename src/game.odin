@@ -39,6 +39,8 @@ update_clay :: proc() {
     clay.SetPointerState(
         rl.GetMousePosition(),
         rl.IsMouseButtonDown(.LEFT));
+
+	clay.UpdateScrollContainers(false, rl.GetMouseWheelMoveV() * 4, rl.GetFrameTime())
 }
 
 run_game :: proc(game: ^Game) {

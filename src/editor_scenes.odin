@@ -38,7 +38,7 @@ when DEVTOOLS {
 				childAlignment = {.Center, .Center},
 				layoutDirection = .TopToBottom,
 			},
-			backgroundColor = {255, 255, 255, 255},
+			backgroundColor = {0,0,0, 255},
 		},
 		) {
 			if (ui.button("Edit a sprite's collision!")) {

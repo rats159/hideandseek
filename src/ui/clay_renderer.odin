@@ -17,6 +17,8 @@ measure_text :: proc "c" (text: clay.StringSlice, config: ^clay.TextElementConfi
     for i in 0 ..< text.length {
         glyph_index := text.chars[i] - 32
 
+        assert_contextless(text.chars[i] != '\n', "Clay didn't handle the newline?")
+
         glyph := font.glyphs[glyph_index]
 
         if glyph.advanceX != 0 {
