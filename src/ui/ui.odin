@@ -6,6 +6,7 @@ import rl "vendor:raylib"
 UI_Data :: struct {
 	fonts:       [dynamic]rl.Font,
 	clay_memory: clay.Arena,
+	modal: Maybe(Modal)
 }
 
 buttonColor :: proc() -> clay.Color {

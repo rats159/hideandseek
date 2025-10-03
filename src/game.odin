@@ -26,6 +26,7 @@ init_game :: proc(game: ^Game) {
 	game.current_scene = main_menu_scene_make()
 	ui.loadFont("./assets/NotoSans-Regular.ttf", 64, &game.ui_data)
 	ui.loadFont("./assets/JetBrainsMonoNL-Regular.ttf", 64, &game.ui_data)
+	rl.SetExitKey(.KEY_NULL)
 }
 
 change_scene :: proc(game: ^Game, scene: ^Scene) {
@@ -54,6 +55,9 @@ run_game :: proc(game: ^Game) {
 		clay.BeginLayout()
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.WHITE)
+		if modal, exists := game.ui_data.modal.?; exists {
+			ui.draw_modals(modal, &game.ui_data)
+		}
 		game.current_scene->draw(game)
 		commands := clay.EndLayout()
 		ui.clay_raylib_render(&commands, game.ui_data.fonts)
