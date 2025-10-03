@@ -50,6 +50,7 @@ run_game :: proc(game: ^Game) {
 			game.current_scene->tick(game)
 		}
 		update_clay()
+		clay.ResetMeasureTextCache() // Temporary, clay's cache is a bit broken :(
 		clay.BeginLayout()
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.WHITE)

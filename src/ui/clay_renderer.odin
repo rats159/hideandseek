@@ -1,5 +1,7 @@
 package ui
 
+import "base:runtime"
+import "core:fmt"
 import clay "../../libs/clay-odin"
 import "core:math"
 import "core:strings"
@@ -20,8 +22,6 @@ measure_text :: proc "c" (
 
 	for i in 0 ..< text.length {
 		glyph_index := text.chars[i] - 32
-
-		assert_contextless(text.chars[i] != '\n', "Clay didn't handle the newline?")
 
 		glyph := font.glyphs[glyph_index]
 
