@@ -15,24 +15,8 @@ MainMenuScene :: struct {
 	using _: Scene,
 }
 
-GameScene :: struct {
-	using _: Scene,
-}
-
 generic_scene_destroy :: proc(scene: ^Scene) {
 	delete(scene.entities)
-}
-
-game_scene_make :: proc() -> ^Scene {
-	scene := new(GameScene)
-
-	scene.draw = game_scene_draw
-	scene.tick = game_scene_tick
-	scene.destroy = generic_scene_destroy
-
-	append(&scene.entities, make_player())
-
-	return scene
 }
 
 main_menu_scene_make :: proc() -> ^Scene {
@@ -63,7 +47,7 @@ main_menu_draw :: proc(scene: ^Scene, game: ^Game) {
 		ui.vGap(20)
 		if clay.UI()({layout = {layoutDirection = .TopToBottom, childGap = 10}}) {
 			if (ui.button("Play!")) {
-				change_scene(game, game_scene_make())
+				change_scene(game, server_picker_scene_make())
 			}
 			when DEVTOOLS {
 				if (ui.button("Dev Tools!")) {
@@ -75,36 +59,5 @@ main_menu_draw :: proc(scene: ^Scene, game: ^Game) {
 
 			}
 		}
-	}
-}
-
-game_scene_tick :: proc(scene: ^Scene, game: ^Game) {
-	for &ent in scene.entities {
-		if (ent.components >= PLAYER_COMPONENTS) {
-			tick_player(&ent)
-		}
-	}
-}
-
-game_scene_draw :: proc(scene: ^Scene, game: ^Game) {
-	rl.ClearBackground(rl.BLACK)
-	for &ent in scene.entities {
-		if .SPRITE in ent.components {
-			rl.DrawTexture(ent.sprite, i32(ent.position.x), i32(ent.position.y), rl.WHITE)
-		}
-	}
-	if clay.UI()(
-	{
-		layout = {
-			sizing = {width = clay.SizingGrow(), height = clay.SizingGrow()},
-			childAlignment = {.Center, .Center},
-			layoutDirection = .TopToBottom,
-		},
-	},
-	) {
-		ui.centeredText(
-			"Game Scene!",
-			clay.TextConfig({textColor = {255, 255, 255, 255}, fontId = 0, fontSize = 64}),
-		)
 	}
 }

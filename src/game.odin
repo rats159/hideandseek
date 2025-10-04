@@ -1,7 +1,9 @@
 package main
 
 import clay "../libs/clay-odin"
+import "core:fmt"
 import "ui"
+import enet "vendor:ENet"
 import rl "vendor:raylib"
 
 Game :: struct {
@@ -27,6 +29,10 @@ init_game :: proc(game: ^Game) {
 	ui.loadFont("./assets/NotoSans-Regular.ttf", 64, &game.ui_data)
 	ui.loadFont("./assets/JetBrainsMonoNL-Regular.ttf", 64, &game.ui_data)
 	rl.SetExitKey(.KEY_NULL)
+
+	if error_code := enet.initialize(); error_code != 0 {
+		fmt.panicf("Failed to initialize ENet with error code", error_code)
+	}
 }
 
 change_scene :: proc(game: ^Game, scene: ^Scene) {
@@ -83,4 +89,5 @@ destroy_game :: proc(game: Game) {
 
 	close_window()
 
+	enet.deinitialize()
 }
