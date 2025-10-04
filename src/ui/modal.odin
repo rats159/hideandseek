@@ -38,6 +38,11 @@ draw_modal :: proc(modal: Modal, data: ^UI_Data) {
             fontSize = 48,
             textColor = {0,0,0,255}
         }))
+        centeredText(modal.body, clay.TextConfig({
+            fontId = 1,
+            fontSize = 24,
+            textColor = {0,0,0,255}
+        }))
         if button("Ok") || rl.IsKeyPressed(.ESCAPE) {
             close_modal(data)
         }
