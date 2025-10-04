@@ -24,9 +24,9 @@ Connection_State :: enum {
 }
 
 Network_Data :: struct {
-	client:   ^enet.Host,
-	peer:     ^enet.Peer,
-	id:       u64,
+	client: ^enet.Host,
+	peer:   ^enet.Peer,
+	id:     u64,
 }
 
 Connection_Scene :: struct {
@@ -132,10 +132,12 @@ connection_scene_draw :: proc(scene: ^Scene, game: ^Game) {
 				}, scene)
 
 		case .Resolution_Failed:
+			thread.pool_join(&scene.thread_pool)
 			ui.open_modal({title = strings.clone("Failed to resolve")}, &game.ui_data)
 			change_scene(game, server_picker_scene_make())
 
 		case .Connection_Failed:
+			thread.pool_join(&scene.thread_pool)
 			ui.open_modal({title = strings.clone("Failed to connect")}, &game.ui_data)
 			change_scene(game, server_picker_scene_make())
 
@@ -148,7 +150,7 @@ connection_scene_draw :: proc(scene: ^Scene, game: ^Game) {
 			)
 		case .Connected:
 			thread.pool_join(&scene.thread_pool)
-			change_scene(game, game_scene_make(scene.network_data.?))
+			change_scene(game, username_picker_scene_make(scene.network_data.?))
 		}
 	}
 }

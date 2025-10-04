@@ -1,10 +1,12 @@
 package main
 
 import "core:math/rand"
+import "core:sync"
 import rl "vendor:raylib"
 
 Entity :: struct {
 	id:         u64,
+	mutex:      sync.Mutex,
 	components: bit_set[Component],
 	position:   rl.Vector2,
 	speed:      f32,
