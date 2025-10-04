@@ -70,7 +70,9 @@ run_game :: proc(game: ^Game) {
 		rl.EndDrawing()
 
 		if (game.next_scene != nil) {
-			game.current_scene->destroy()
+			if game.current_scene.destroy != nil {
+				game.current_scene->destroy()
+			}
 			free(game.current_scene)
 			game.current_scene = game.next_scene
 			game.next_scene = nil

@@ -24,11 +24,10 @@ Game_Scene :: struct {
 	username:      string,
 	network_mutex: sync.Mutex,
 	other_clients: map[u64]Client,
+	player:        Player,
 }
 
 game_scene_destroy :: proc(scene: ^Scene) {
-	generic_scene_destroy(scene)
-
 	scene := (^Game_Scene)(scene)
 
 	delete(scene.username)
@@ -43,7 +42,7 @@ game_scene_make :: proc(network_data: Network_Data, username: string) -> ^Scene 
 
 	scene.network_data = network_data
 
-	append(&scene.entities, make_player())
+	scene.player = make_player()
 
 	send_packet(network_data.peer, common.Whos_Here_Packet{})
 
@@ -61,31 +60,24 @@ game_scene_make :: proc(network_data: Network_Data, username: string) -> ^Scene 
 }
 
 game_scene_network_tick :: proc(scene: ^Game_Scene) {
-	player := scene.entities[0]
-	assert(.PLAYER_CONTROLLED in player.components)
-
 	sync.lock(&scene.network_mutex)
-	sync.lock(&player.mutex)
+	sync.lock(&scene.player.mutex)
 	send_packet(
 		scene.network_data.peer,
-		common.Position_Update_Packet{scene.network_data.id, player.position},
+		common.Position_Update_Packet{scene.network_data.id, scene.player.position},
 	)
 
 	send_packet(scene.network_data.peer, common.Request_Positions_Packet{})
-	sync.unlock(&player.mutex)
+	sync.unlock(&scene.player.mutex)
 	sync.unlock(&scene.network_mutex)
 }
 
 game_scene_tick :: proc(scene: ^Scene, game: ^Game) {
 	scene := (^Game_Scene)(scene)
 
-	for &ent in scene.entities {
-		if ent.components >= PLAYER_COMPONENTS {
-			sync.lock(&ent.mutex)
-			tick_player(&ent)
-			sync.unlock(&ent.mutex)
-		}
-	}
+	sync.lock(&scene.player.mutex)
+	tick_player(&scene.player)
+	sync.unlock(&scene.player.mutex)
 
 
 	event: enet.Event
@@ -126,15 +118,7 @@ game_scene_draw :: proc(scene: ^Scene, game: ^Game) {
 
 	rl.ClearBackground(rl.BLACK)
 
-	for &ent in scene.entities {
-		if ent.components >= {.SPRITE, .POSITION} {
-			rl.DrawTextureV(
-				ent.sprite,
-				ent.position - {f32(ent.sprite.width), f32(ent.sprite.height)} / 2,
-				rl.WHITE,
-			)
-		}
-	}
+	draw_player(scene.player)
 
 	for _, client in scene.other_clients {
 		rl.DrawCircleV(client.position, 8, {0, 255, 0, 128})

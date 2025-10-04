@@ -5,26 +5,19 @@ import "ui"
 import rl "vendor:raylib"
 
 Scene :: struct {
-	entities: [dynamic]Entity,
-	destroy:  proc(self: ^Scene),
-	draw:     proc(scene: ^Scene, game: ^Game),
-	tick:     proc(scene: ^Scene, game: ^Game),
+	destroy: proc(self: ^Scene),
+	draw:    proc(scene: ^Scene, game: ^Game),
+	tick:    proc(scene: ^Scene, game: ^Game),
 }
 
 MainMenuScene :: struct {
 	using _: Scene,
 }
 
-generic_scene_destroy :: proc(scene: ^Scene) {
-	delete(scene.entities)
-}
-
 main_menu_scene_make :: proc() -> ^Scene {
 	scene := new(MainMenuScene)
 
 	scene.draw = main_menu_draw
-	scene.destroy = generic_scene_destroy
-
 
 	return scene
 }

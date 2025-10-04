@@ -164,7 +164,6 @@ when DEVTOOLS {
 
 	serialization_test_scene_destroy :: proc(scene: ^Scene) {
 		scene := (^SerializationTestScene)(scene)
-		generic_scene_destroy(scene)
 		delete(scene.tests)
 		free_all(scene.alloc)
 		virtual.arena_destroy(&scene.arena)

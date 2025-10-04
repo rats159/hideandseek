@@ -24,7 +24,6 @@ when DEVTOOLS {
 		scene := new(DevToolsScene)
 
 		scene.draw = dev_tools_scene_draw
-		scene.destroy = generic_scene_destroy
 
 		return scene
 	}
@@ -75,7 +74,6 @@ when DEVTOOLS {
 	}
 
 	sprite_editor_scene_destroy :: proc(scene: ^Scene) {
-		generic_scene_destroy(scene)
 		delete((^SpriteEditorScene)(scene).colliders)
 		rl.UnloadTexture((^SpriteEditorScene)(scene).baseTex)
 	}

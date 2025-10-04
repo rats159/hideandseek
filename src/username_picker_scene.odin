@@ -65,7 +65,6 @@ username_picker_scene_draw :: proc(scene: ^Scene, game: ^Game) {
 }
 
 username_picker_scene_destroy :: proc(scene: ^Scene) {
-	generic_scene_destroy(scene)
 	scene := (^Username_Picker_Scene)(scene)
 
 	strings.builder_destroy(&scene.builder)
@@ -103,8 +102,8 @@ username_picker_scene_tick :: proc(scene: ^Scene, game: ^Game) {
 							&game.ui_data,
 						)
 					}
-                case common.Join_Packet, common.Update_All_Positions_Packet:
-                    // ignore
+				case common.Join_Packet, common.Update_All_Positions_Packet:
+				// ignore
 				case:
 					fmt.panicf("Unexpected packet: %v", type)
 				}

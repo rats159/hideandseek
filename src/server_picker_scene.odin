@@ -19,13 +19,11 @@ Server_Picker_Scene :: struct {
 }
 
 server_picker_scene_destroy :: proc(scene: ^Scene) {
-	generic_scene_destroy(scene)
-
 	scene := (^Server_Picker_Scene)(scene)
 
 	edit.destroy(&scene.address_input)
 	strings.builder_destroy(&scene.address_buffer)
-	
+
 }
 
 server_picker_scene_make :: proc() -> ^Scene {
@@ -54,27 +52,19 @@ server_picker_scene_draw :: proc(scene: ^Scene, game: ^Game) {
 	},
 	) {
 		str := strings.to_string(scene.address_buffer)
-        color: = clay.Color{0, 0, 0, 255}
-        ip, parsing_error := net.parse_hostname_or_endpoint(str)
+		color := clay.Color{0, 0, 0, 255}
+		ip, parsing_error := net.parse_hostname_or_endpoint(str)
 		if parsing_error != nil {
-            color = {255, 0, 0, 255}
+			color = {255, 0, 0, 255}
 		}
 
 		clay.Text("IP Address", clay.TextConfig({textColor = {0, 0, 0, 255}, fontSize = 32}))
 
-		if clay.UI()({
-            layout = {
-                layoutDirection = .TopToBottom,
-                childGap = 8
-            }
-        }) {
+		if clay.UI()({layout = {layoutDirection = .TopToBottom, childGap = 8}}) {
 
 			if clay.UI()(
 			{
-				layout = {
-					sizing = {width = clay.SizingGrow()},
-					padding = clay.PaddingAll(8),
-				},
+				layout = {sizing = {width = clay.SizingGrow()}, padding = clay.PaddingAll(8)},
 				border = {width = clay.BorderOutside(2), color = {0, 0, 0, 255}},
 			},
 			) {
@@ -86,18 +76,19 @@ server_picker_scene_draw :: proc(scene: ^Scene, game: ^Game) {
 
 			if clay.UI()({layout = {childGap = 8, sizing = {width = clay.SizingGrow()}}}) {
 				if ui.button("Connect!") || rl.IsKeyPressed(.ENTER) {
-                    if parsing_error != nil {
-                        ui.open_modal({
-                            title = strings.clone("Invalid IP Address!")
-                        },&game.ui_data)
-                    } else {
-                        change_scene(game, connection_scene_make(strings.clone(str), game))
-                    }
-                }
-                ui.hGrow()
+					if parsing_error != nil {
+						ui.open_modal(
+							{title = strings.clone("Invalid IP Address!")},
+							&game.ui_data,
+						)
+					} else {
+						change_scene(game, connection_scene_make(strings.clone(str), game))
+					}
+				}
+				ui.hGrow()
 				if ui.button("Back") {
-                    change_scene(game, main_menu_scene_make())
-                }
+					change_scene(game, main_menu_scene_make())
+				}
 			}
 		}
 

@@ -55,8 +55,6 @@ resolve_ip :: proc(scene: ^Connection_Scene) {
 }
 
 connection_scene_destroy :: proc(scene: ^Scene) {
-	generic_scene_destroy(scene)
-
 	scene := (^Connection_Scene)(scene)
 
 	thread.pool_destroy(&scene.thread_pool)
