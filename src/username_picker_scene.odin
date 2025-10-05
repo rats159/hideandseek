@@ -102,7 +102,7 @@ username_picker_scene_tick :: proc(scene: ^Scene, game: ^Game) {
 							&game.ui_data,
 						)
 					}
-				case common.Join_Packet, common.Update_All_Positions_Packet:
+				case common.Join_Packet, common.Update_All_Positions_Packet, common.SetUsernamePacket:
 				// ignore
 				case:
 					fmt.panicf("Unexpected packet: %v", type)

@@ -40,9 +40,10 @@ main :: proc() {
 	for {
 		start := time.tick_now()
 		parse_incoming_packets(&data)
+		broadcast_positions(&data)
 
-		sleep_time := time.tick_diff(time.tick_now(), time.tick_add(start, time.Second / 20))
-		// free_all(context.temp_allocator)
+		sleep_time := time.tick_diff(time.tick_now(), time.tick_add(start, common.TICK_RATE))
+		free_all(context.temp_allocator)
 		time.sleep(sleep_time)
 	}
 
@@ -65,10 +66,6 @@ handle_packet :: proc(data: ^Server_Network_Data, packet: common.C2SPacket, even
 	client := &data.clients[u64(uintptr(event.peer.data))]
 
 	switch type in packet {
-	case common.Request_Positions_Packet:
-		broadcast_positions(data)
-	case common.MessagePacket:
-		fmt.printfln("Client '%s' says %s", client.username, type.message)
 	case common.SetUsernamePacket:
 		fmt.printfln("Client with id %016X request username '%s'", client.id, client.username)
 		result := validate_username(type.message)
@@ -83,14 +80,16 @@ handle_packet :: proc(data: ^Server_Network_Data, packet: common.C2SPacket, even
 			event.peer,
 			common.UsernameReceivedPacket{result = result, value = type.message},
 		)
+		broadcast_packet(data.server, type) 
+
 	case common.Position_Update_Packet:
 		fmt.printfln("%016X: New Position: (%f,%f)", type.id, type.position.x, type.position.y)
 		client.position = type.position
 	case common.Whos_Here_Packet:
-		existing_players := make([]u64, len(data.clients), context.temp_allocator)
+		existing_players := make([]common.StringPacket, len(data.clients), context.temp_allocator)
 		i := 0
-		for id, _ in data.clients {
-			existing_players[i] = id
+		for id, client in data.clients {
+			existing_players[i] = {id, client.username}
 			i += 1
 		}
 		send_packet(event.peer, common.Join_Packet{existing_players})
@@ -111,7 +110,7 @@ parse_incoming_packets :: proc(data: ^Server_Network_Data) {
 			fmt.printfln("New client connected. Assigning id %016X.", id)
 
 			send_packet(data.clients[id].peer, common.AssignIDPacket{id})
-			broadcast_packet(data.server, common.Join_Packet{{id}})
+			broadcast_packet(data.server, common.Join_Packet{{{id, "New Player"}}})
 		case .RECEIVE:
 			packet: common.C2SPacket
 			_ = cbor.unmarshal_from_bytes(event.packet.data[:event.packet.dataLength], &packet)

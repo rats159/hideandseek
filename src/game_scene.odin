@@ -14,17 +14,14 @@ import "ui"
 import enet "vendor:ENet"
 import rl "vendor:raylib"
 
-Client :: struct {
-	position: [2]f32,
-}
-
 Game_Scene :: struct {
 	using _:       Scene,
 	network_data:  Network_Data,
 	username:      string,
 	network_mutex: sync.Mutex,
-	other_clients: map[u64]Client,
+	other_clients: map[u64]Network_Player,
 	player:        Player,
+	last_tick_at:  time.Tick,
 }
 
 game_scene_destroy :: proc(scene: ^Scene) {
@@ -42,7 +39,7 @@ game_scene_make :: proc(network_data: Network_Data, username: string) -> ^Scene 
 
 	scene.network_data = network_data
 
-	scene.player = make_player()
+	scene.player = make_player(scene.network_data.id)
 
 	send_packet(network_data.peer, common.Whos_Here_Packet{})
 
@@ -51,7 +48,7 @@ game_scene_make :: proc(network_data: Network_Data, username: string) -> ^Scene 
 			start := time.tick_now()
 			game_scene_network_tick(scene)
 
-			sleep_time := time.tick_diff(time.tick_now(), time.tick_add(start, time.Second / 10))
+			sleep_time := time.tick_diff(time.tick_now(), time.tick_add(start, common.TICK_RATE))
 			time.sleep(sleep_time)
 		}
 	})
@@ -67,7 +64,7 @@ game_scene_network_tick :: proc(scene: ^Game_Scene) {
 		common.Position_Update_Packet{scene.network_data.id, scene.player.position},
 	)
 
-	send_packet(scene.network_data.peer, common.Request_Positions_Packet{})
+	scene.last_tick_at = time.tick_now()
 	sync.unlock(&scene.player.mutex)
 	sync.unlock(&scene.network_mutex)
 }
@@ -97,17 +94,34 @@ handle_packet_receive :: proc(scene: ^Game_Scene, packet: common.S2CPacket) {
 	case common.Update_All_Positions_Packet:
 		for client in type.positions {
 			if client.id == scene.network_data.id do continue
-			assert(client.id in scene.other_clients)
+			if client.id not_in scene.other_clients {
+				fmt.printfln(
+					"Unexpected: Tried to set position of id %016X, which wasn't in out connection list",
+					client.id,
+				)
+				continue
+			}
 
-			(&scene.other_clients[client.id]).position = client.position
+			local_client := &scene.other_clients[client.id]
+			local_client.position = local_client.next_position
+			local_client.next_position = client.position
 		}
 	case common.Join_Packet:
-		for id in type.ids {
+		for user in type.users {
+			id := user.id
+			username := user.message
 			if id == scene.network_data.id do continue
 
 			assert(id not_in scene.other_clients)
-			scene.other_clients[id] = {}
+			scene.other_clients[id] = {
+				id       = id,
+				username = strings.clone(username),
+				sprite   = get_player_sprite(id),
+			}
 		}
+	case common.SetUsernamePacket:
+		assert(type.id in scene.other_clients)
+		(&scene.other_clients[type.id]).username = type.message
 	case:
 		fmt.panicf("Unexpected packet: %s", packet)
 	}
@@ -120,9 +134,18 @@ game_scene_draw :: proc(scene: ^Scene, game: ^Game) {
 
 	draw_player(scene.player)
 
-	for _, client in scene.other_clients {
-		rl.DrawCircleV(client.position, 8, {0, 255, 0, 128})
+	sync.lock(&scene.network_mutex)
+	tick_diff := time.tick_diff(scene.last_tick_at, time.tick_now())
+	sync.unlock(&scene.network_mutex)
+
+	tick_delta := f32(tick_diff) / f32(common.TICK_RATE)
+
+	sync.lock(&scene.network_mutex)
+	for _, &client in scene.other_clients {
+		draw_network_player(game, client, tick_delta)
 	}
+	sync.unlock(&scene.network_mutex)
+
 }
 
 send_packet :: proc(to: ^enet.Peer, data: common.C2SPacket) {

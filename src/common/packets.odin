@@ -1,10 +1,8 @@
 package common
 
 C2SPacket :: union {
-    MessagePacket,
     SetUsernamePacket,
     Position_Update_Packet,
-    Request_Positions_Packet,
     Whos_Here_Packet
 }
 
@@ -13,14 +11,12 @@ StringPacket :: struct {
     message: string
 }
 
-Request_Positions_Packet :: struct{}
 Whos_Here_Packet :: struct{}
 Position_Update_Packet :: struct {
     id: u64,
     position: [2]f32
 }
 
-MessagePacket :: distinct StringPacket
 SetUsernamePacket :: distinct StringPacket
 
 S2CPacket :: union {
@@ -28,11 +24,12 @@ S2CPacket :: union {
     UsernameReceivedPacket,
     Update_All_Positions_Packet,
     Join_Packet,
-    Leave_Packet
+    Leave_Packet,
+    SetUsernamePacket
 }
 
 Join_Packet :: struct {
-    ids: []u64
+    users: []StringPacket
 }
 
 Leave_Packet :: struct {
