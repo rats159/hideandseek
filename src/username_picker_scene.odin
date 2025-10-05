@@ -82,7 +82,11 @@ username_picker_scene_tick :: proc(scene: ^Scene, game: ^Game) {
 		case .RECEIVE:
 			{
 				packet: common.S2CPacket
-				_ = cbor.unmarshal_from_bytes(event.packet.data[:event.packet.dataLength], &packet)
+				_ = cbor.unmarshal_from_bytes(
+					event.packet.data[:event.packet.dataLength],
+					&packet,
+					allocator = context.temp_allocator,
+				)
 
 				#partial switch type in packet {
 				case common.AssignIDPacket:
@@ -102,7 +106,9 @@ username_picker_scene_tick :: proc(scene: ^Scene, game: ^Game) {
 							&game.ui_data,
 						)
 					}
-				case common.Join_Packet, common.Update_All_Positions_Packet, common.SetUsernamePacket:
+				case common.Join_Packet,
+				     common.Update_All_Positions_Packet,
+				     common.SetUsernamePacket:
 				// ignore
 				case:
 					fmt.panicf("Unexpected packet: %v", type)

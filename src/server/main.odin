@@ -67,7 +67,7 @@ handle_packet :: proc(data: ^Server_Network_Data, packet: common.C2SPacket, even
 
 	switch type in packet {
 	case common.SetUsernamePacket:
-		fmt.printfln("Client with id %016X request username '%s'", client.id, client.username)
+		fmt.printfln("Client with id %016X request username '%s'", client.id, type.message)
 		result := validate_username(type.message)
 
 		if result != .All_Good {
@@ -80,7 +80,7 @@ handle_packet :: proc(data: ^Server_Network_Data, packet: common.C2SPacket, even
 			event.peer,
 			common.UsernameReceivedPacket{result = result, value = type.message},
 		)
-		broadcast_packet(data.server, type) 
+		broadcast_packet(data.server, type)
 
 	case common.Position_Update_Packet:
 		fmt.printfln("%016X: New Position: (%f,%f)", type.id, type.position.x, type.position.y)
@@ -123,6 +123,8 @@ parse_incoming_packets :: proc(data: ^Server_Network_Data) {
 				client.id,
 				client.username,
 			)
+			delete_key(&data.clients, client.id)
+			broadcast_packet(data.server, common.Leave_Packet{ids = {client.id}})
 		}
 	}
 }

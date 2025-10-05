@@ -21,9 +21,5 @@ main :: proc() {
 	init_game(&game)
 	run_game(&game)
 
-	when ODIN_DEBUG {
-		// Only destroy program-lifelong memory in debug mode for the tracking allocator
-		//   Otherwise, the OS can handle it for a faster close
-		destroy_game(game)
-	}
+	destroy_game(game)
 }

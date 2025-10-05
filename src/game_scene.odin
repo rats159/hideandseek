@@ -15,17 +15,32 @@ import enet "vendor:ENet"
 import rl "vendor:raylib"
 
 Game_Scene :: struct {
-	using _:       Scene,
-	network_data:  Network_Data,
-	username:      string,
-	network_mutex: sync.Mutex,
-	other_clients: map[u64]Network_Player,
-	player:        Player,
-	last_tick_at:  time.Tick,
+	using _:        Scene,
+	network_data:   Network_Data,
+	username:       string,
+	network_mutex:  sync.Mutex,
+	other_clients:  map[u64]Network_Player,
+	player:         Player,
+	last_tick_at:   time.Tick,
+	ticking_thread: ^thread.Thread,
+	quitting:       bool,
 }
 
 game_scene_destroy :: proc(scene: ^Scene) {
 	scene := (^Game_Scene)(scene)
+
+	sync.lock(&scene.network_mutex)
+	scene.quitting = true
+	sync.unlock(&scene.network_mutex)
+	thread.join(scene.ticking_thread)
+	thread.destroy(scene.ticking_thread)
+
+	for _, client in scene.other_clients {
+		delete(client.username)
+	}
+	delete(scene.other_clients)
+
+	enet.peer_disconnect_now(scene.network_data.peer, 0)
 
 	delete(scene.username)
 }
@@ -36,15 +51,18 @@ game_scene_make :: proc(network_data: Network_Data, username: string) -> ^Scene 
 	scene.draw = game_scene_draw
 	scene.destroy = game_scene_destroy
 	scene.tick = game_scene_tick
-
+	scene.username = username
 	scene.network_data = network_data
 
 	scene.player = make_player(scene.network_data.id)
 
 	send_packet(network_data.peer, common.Whos_Here_Packet{})
 
-	thread.create_and_start_with_poly_data(scene, proc(scene: ^Game_Scene) {
+	scene.ticking_thread = thread.create_and_start_with_poly_data(scene, proc(scene: ^Game_Scene) {
 		for {
+			sync.lock(&scene.network_mutex)
+			if scene.quitting do break
+			sync.unlock(&scene.network_mutex)
 			start := time.tick_now()
 			game_scene_network_tick(scene)
 
@@ -83,7 +101,11 @@ game_scene_tick :: proc(scene: ^Scene, game: ^Game) {
 		#partial switch event.type {
 		case .RECEIVE:
 			packet: common.S2CPacket
-			_ = cbor.unmarshal_from_bytes(event.packet.data[:event.packet.dataLength], &packet)
+			_ = cbor.unmarshal_from_bytes(
+				event.packet.data[:event.packet.dataLength],
+				&packet,
+				allocator = context.temp_allocator,
+			)
 			handle_packet_receive(scene, packet)
 		}
 	}
@@ -119,11 +141,19 @@ handle_packet_receive :: proc(scene: ^Game_Scene, packet: common.S2CPacket) {
 				sprite   = get_player_sprite(id),
 			}
 		}
+	case common.Leave_Packet:
+		for id in type.ids {
+			client := &scene.other_clients[id]
+			delete(client.username)
+			delete_key(&scene.other_clients, id)
+		}
 	case common.SetUsernamePacket:
 		assert(type.id in scene.other_clients)
-		(&scene.other_clients[type.id]).username = type.message
+		client := &scene.other_clients[type.id]
+		delete(client.username)
+		client.username = strings.clone(type.message)
 	case:
-		fmt.panicf("Unexpected packet: %s", packet)
+		fmt.panicf("Unexpected packet: %v", packet)
 	}
 }
 
@@ -149,8 +179,7 @@ game_scene_draw :: proc(scene: ^Scene, game: ^Game) {
 }
 
 send_packet :: proc(to: ^enet.Peer, data: common.C2SPacket) {
-	message, _ := cbor.marshal_into_bytes(data)
+	message, _ := cbor.marshal_into_bytes(data, allocator = context.temp_allocator)
 	packet := enet.packet_create(raw_data(message), uint(len(message)), {.RELIABLE})
 	enet.peer_send(to, 0, packet)
-	delete(message)
 }

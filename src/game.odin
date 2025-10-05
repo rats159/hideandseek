@@ -81,15 +81,23 @@ run_game :: proc(game: ^Game) {
 }
 
 destroy_game :: proc(game: Game) {
-	game.current_scene->destroy()
-	free(game.current_scene)
-
-	free(game.ui_data.clay_memory.memory)
-	delete(game.ui_data.fonts)
-
-	cleanup_assets()
-
 	close_window()
+	
+	if game.current_scene != nil {
+		if game.current_scene.destroy != nil {
+			game.current_scene->destroy()
+		}
+		free(game.current_scene)
+	}
 
 	enet.deinitialize()
+	
+	// Only destroy program-lifelong memory in debug mode for the tracking allocator
+	//   Otherwise, the OS can handle it for a faster close
+	when ODIN_DEBUG {
+		free(game.ui_data.clay_memory.memory)
+		delete(game.ui_data.fonts)
+	
+		cleanup_assets()
+	}
 }
